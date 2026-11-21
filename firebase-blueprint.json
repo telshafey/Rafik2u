@@ -1,0 +1,240 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Hafiz profile, daily revision goal, font preference, and cumulative counts.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "dailyRevisionTargetPages": { "type": "integer" },
+        "zikrFontScale": { "type": "number" },
+        "totalRevisionsCount": { "type": "integer" },
+        "totalTasbihCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId",
+        "displayName",
+        "dailyRevisionTargetPages",
+        "zikrFontScale",
+        "totalRevisionsCount",
+        "totalTasbihCount",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "JuzProgress": {
+      "title": "JuzProgress",
+      "description": "Revision and mastery tracking for each of the 30 Juz of the Quran.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "juzNumber": { "type": "integer" },
+        "masteryLevel": {
+          "type": "string",
+          "enum": ["not_started", "memorizing", "needs_review", "mastered"]
+        },
+        "revisionCount": { "type": "integer" },
+        "mistakeNote": { "type": "string" },
+        "lastReviewedEpochMs": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId",
+        "juzNumber",
+        "masteryLevel",
+        "revisionCount",
+        "mistakeNote",
+        "lastReviewedEpochMs",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TajweedProgress": {
+      "title": "TajweedProgress",
+      "description": "Mastery status for individual Tajweed rules.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "ruleKey": { "type": "string" },
+        "mastered": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "ruleKey", "mastered", "createdAt", "updatedAt"]
+    },
+    "DailyWorshipLog": {
+      "title": "DailyWorshipLog",
+      "description": "Daily Quran revision pages, Azkar, Tajweed quiz score, and Tasbih log keyed by yyyy-MM-dd.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "dateKey": { "type": "string" },
+        "pagesRevisedToday": { "type": "integer" },
+        "morningAzkarDone": { "type": "boolean" },
+        "eveningAzkarDone": { "type": "boolean" },
+        "tasbihDoneToday": { "type": "integer" },
+        "tajweedQuizCorrect": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId",
+        "dateKey",
+        "pagesRevisedToday",
+        "morningAzkarDone",
+        "eveningAzkarDone",
+        "tasbihDoneToday",
+        "tajweedQuizCorrect",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CustomZikr": {
+      "title": "CustomZikr",
+      "description": "User-created Dua or Zikr entry.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "text": { "type": "string" },
+        "virtue": { "type": "string" },
+        "targetCount": { "type": "integer" },
+        "totalCompleted": { "type": "integer" },
+        "favorite": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId",
+        "text",
+        "virtue",
+        "targetCount",
+        "totalCompleted",
+        "favorite",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ReflectionEntry": {
+      "title": "ReflectionEntry",
+      "description": "Personal Hafiz note for Ayah fixing, Mutashabihat, Tajweed, or gratitude.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "moodTag": {
+          "type": "string",
+          "enum": ["ayah_fix", "mutashabihat", "tajweed", "grateful"]
+        },
+        "dateKey": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "body", "moodTag", "dateKey", "createdAt", "updatedAt"]
+    },
+    "FavoriteZikr": {
+      "title": "FavoriteZikr",
+      "description": "Bookmark reference for a Sunnah Hadith, Dua, or Zikr.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "zikrKey": { "type": "string" },
+        "categoryKey": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "zikrKey", "categoryKey", "createdAt"]
+    },
+    "GamificationProfile": {
+      "title": "GamificationProfile",
+      "description": "Hafiz XP, daily streaks, quiz stats, and unlocked badge keys.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "xp": { "type": "integer" },
+        "currentStreakDays": { "type": "integer" },
+        "longestQuizCombo": { "type": "integer" },
+        "quizzesCompleted": { "type": "integer" },
+        "perfectQuizzes": { "type": "integer" },
+        "totalCorrectAnswers": { "type": "integer" },
+        "surahOpenersSolved": { "type": "integer" },
+        "surahClosersSolved": { "type": "integer" },
+        "mutashabihatSolved": { "type": "integer" },
+        "testedJuzCsv": { "type": "string" },
+        "fullQuranQuizDone": { "type": "boolean" },
+        "unlockedBadgesCsv": { "type": "string" },
+        "lastActiveDateKey": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "xp", "currentStreakDays", "longestQuizCombo",
+        "quizzesCompleted", "perfectQuizzes", "totalCorrectAnswers",
+        "surahOpenersSolved", "surahClosersSolved", "mutashabihatSolved",
+        "testedJuzCsv", "fullQuranQuizDone", "unlockedBadgesCsv",
+        "lastActiveDateKey", "createdAt", "updatedAt"
+      ]
+    },
+    "QuizAttempt": {
+      "title": "QuizAttempt",
+      "description": "Completed Quran memorization exam record.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "scopeLabel": { "type": "string" },
+        "questionTypesCsv": { "type": "string" },
+        "score": { "type": "integer" },
+        "totalQuestions": { "type": "integer" },
+        "xpEarned": { "type": "integer" },
+        "bestCombo": { "type": "integer" },
+        "dateKey": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "scopeLabel", "questionTypesCsv", "score",
+        "totalQuestions", "xpEarned", "bestCombo", "dateKey", "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Hafiz profile and preferences."
+    },
+    "/users/{userId}/juzProgress/{juzId}": {
+      "schema": { "$ref": "#/entities/JuzProgress" },
+      "description": "Mastery and revision history for each Quran Juz."
+    },
+    "/users/{userId}/tajweedProgress/{ruleId}": {
+      "schema": { "$ref": "#/entities/TajweedProgress" },
+      "description": "Tajweed lesson mastery flags."
+    },
+    "/users/{userId}/dailyLogs/{logId}": {
+      "schema": { "$ref": "#/entities/DailyWorshipLog" },
+      "description": "Daily revision and Azkar logs."
+    },
+    "/users/{userId}/customAzkar/{zikrId}": {
+      "schema": { "$ref": "#/entities/CustomZikr" },
+      "description": "User-created Duas and Azkar."
+    },
+    "/users/{userId}/reflections/{reflectionId}": {
+      "schema": { "$ref": "#/entities/ReflectionEntry" },
+      "description": "Hafiz revision notes and reflections."
+    },
+    "/users/{userId}/favoriteAzkar/{favId}": {
+      "schema": { "$ref": "#/entities/FavoriteZikr" },
+      "description": "Bookmarked Hadith and Duas."
+    },
+    "/users/{userId}/gamification/{docId}": {
+      "schema": { "$ref": "#/entities/GamificationProfile" },
+      "description": "XP, streaks, and unlocked Hafiz badges."
+    },
+    "/users/{userId}/quizAttempts/{attemptId}": {
+      "schema": { "$ref": "#/entities/QuizAttempt" },
+      "description": "Recent Quran memorization quiz history."
+    }
+  }
+}

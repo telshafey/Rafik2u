@@ -1,0 +1,380 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 60 &&
+             data.dailyRevisionTargetPages is int && data.dailyRevisionTargetPages >= 1 && data.dailyRevisionTargetPages <= 100 &&
+             (data.zikrFontScale is float || data.zikrFontScale is int) && data.zikrFontScale >= 0.8 && data.zikrFontScale <= 1.8 &&
+             data.totalRevisionsCount is int && data.totalRevisionsCount >= 0 && data.totalRevisionsCount <= 1000000 &&
+             data.totalTasbihCount is int && data.totalTasbihCount >= 0 && data.totalTasbihCount <= 100000000;
+    }
+
+    function isValidJuzProgress(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.juzNumber is int && data.juzNumber >= 1 && data.juzNumber <= 30 &&
+             data.masteryLevel is string && data.masteryLevel in ['not_started', 'memorizing', 'needs_review', 'mastered'] &&
+             data.revisionCount is int && data.revisionCount >= 0 && data.revisionCount <= 10000 &&
+             data.mistakeNote is string && data.mistakeNote.size() <= 400 &&
+             data.lastReviewedEpochMs is int && data.lastReviewedEpochMs >= 0;
+    }
+
+    function isValidTajweedProgress(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.ruleKey is string && data.ruleKey.size() >= 1 && data.ruleKey.size() <= 60 &&
+             data.mastered is bool;
+    }
+
+    function isValidDailyWorshipLog(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.dateKey is string && data.dateKey.size() == 10 && data.dateKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$') &&
+             data.pagesRevisedToday is int && data.pagesRevisedToday >= 0 && data.pagesRevisedToday <= 604 &&
+             data.morningAzkarDone is bool &&
+             data.eveningAzkarDone is bool &&
+             data.tasbihDoneToday is int && data.tasbihDoneToday >= 0 && data.tasbihDoneToday <= 100000 &&
+             data.tajweedQuizCorrect is int && data.tajweedQuizCorrect >= 0 && data.tajweedQuizCorrect <= 1000;
+    }
+
+    function isValidCustomZikr(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.text is string && data.text.size() >= 2 && data.text.size() <= 500 &&
+             data.virtue is string && data.virtue.size() <= 300 &&
+             data.targetCount is int && data.targetCount >= 1 && data.targetCount <= 10000 &&
+             data.totalCompleted is int && data.totalCompleted >= 0 && data.totalCompleted <= 10000000 &&
+             data.favorite is bool;
+    }
+
+    function isValidReflectionEntry(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 100 &&
+             data.body is string && data.body.size() >= 1 && data.body.size() <= 1500 &&
+             data.moodTag is string && data.moodTag in ['ayah_fix', 'mutashabihat', 'tajweed', 'grateful'] &&
+             data.dateKey is string && data.dateKey.size() == 10 && data.dateKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+
+    function isValidFavoriteZikr(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.zikrKey is string && data.zikrKey.size() >= 1 && data.zikrKey.size() <= 80 &&
+             data.categoryKey is string && data.categoryKey.size() >= 1 && data.categoryKey.size() <= 40;
+    }
+
+    function isValidGamificationProfile(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.xp is int && data.xp >= 0 && data.xp <= 10000000 &&
+             data.currentStreakDays is int && data.currentStreakDays >= 0 && data.currentStreakDays <= 10000 &&
+             data.longestQuizCombo is int && data.longestQuizCombo >= 0 && data.longestQuizCombo <= 10000 &&
+             data.quizzesCompleted is int && data.quizzesCompleted >= 0 && data.quizzesCompleted <= 1000000 &&
+             data.perfectQuizzes is int && data.perfectQuizzes >= 0 && data.perfectQuizzes <= 1000000 &&
+             data.totalCorrectAnswers is int && data.totalCorrectAnswers >= 0 && data.totalCorrectAnswers <= 10000000 &&
+             data.surahOpenersSolved is int && data.surahOpenersSolved >= 0 && data.surahOpenersSolved <= 1000000 &&
+             data.surahClosersSolved is int && data.surahClosersSolved >= 0 && data.surahClosersSolved <= 1000000 &&
+             data.mutashabihatSolved is int && data.mutashabihatSolved >= 0 && data.mutashabihatSolved <= 1000000 &&
+             data.testedJuzCsv is string && data.testedJuzCsv.size() <= 300 &&
+             data.fullQuranQuizDone is bool &&
+             data.unlockedBadgesCsv is string && data.unlockedBadgesCsv.size() <= 1000 &&
+             data.lastActiveDateKey is string && (data.lastActiveDateKey == '' || (data.lastActiveDateKey.size() == 10 && data.lastActiveDateKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')));
+    }
+
+    function isValidQuizAttempt(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.scopeLabel is string && data.scopeLabel.size() >= 1 && data.scopeLabel.size() <= 120 &&
+             data.questionTypesCsv is string && data.questionTypesCsv.size() >= 1 && data.questionTypesCsv.size() <= 120 &&
+             data.score is int && data.score >= 0 && data.score <= 100 &&
+             data.totalQuestions is int && data.totalQuestions >= 1 && data.totalQuestions <= 100 &&
+             data.xpEarned is int && data.xpEarned >= 0 && data.xpEarned <= 50000 &&
+             data.bestCombo is int && data.bestCombo >= 0 && data.bestCombo <= 100 &&
+             data.dateKey is string && data.dateKey.size() == 10 && data.dateKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'displayName', 'dailyRevisionTargetPages',
+                         'zikrFontScale', 'totalRevisionsCount', 'totalTasbihCount',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'displayName', 'dailyRevisionTargetPages',
+                         'zikrFontScale', 'totalRevisionsCount', 'totalTasbihCount',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'displayName', 'dailyRevisionTargetPages', 'zikrFontScale',
+                         'totalRevisionsCount', 'totalTasbihCount', 'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      match /juzProgress/{juzId} {
+        allow get: if isOwner(userId) && isValidId(juzId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(juzId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'juzNumber', 'masteryLevel', 'revisionCount',
+                           'mistakeNote', 'lastReviewedEpochMs', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'juzNumber', 'masteryLevel', 'revisionCount',
+                           'mistakeNote', 'lastReviewedEpochMs', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidJuzProgress(incoming());
+
+        allow update: if isOwner(userId) &&
+                         isValidId(juzId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().juzNumber == existing().juzNumber &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidJuzProgress(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'masteryLevel', 'revisionCount', 'mistakeNote',
+                           'lastReviewedEpochMs', 'updatedAt'
+                         ]);
+
+        allow delete: if isOwner(userId) && isValidId(juzId);
+      }
+
+      match /tajweedProgress/{ruleId} {
+        allow get: if isOwner(userId) && isValidId(ruleId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(ruleId) &&
+                         incoming().ruleKey == ruleId &&
+                         incoming().keys().hasAll(['userId', 'ruleKey', 'mastered', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['userId', 'ruleKey', 'mastered', 'createdAt', 'updatedAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidTajweedProgress(incoming());
+
+        allow update: if isOwner(userId) &&
+                         isValidId(ruleId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().ruleKey == existing().ruleKey &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidTajweedProgress(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['mastered', 'updatedAt']);
+
+        allow delete: if isOwner(userId) && isValidId(ruleId);
+      }
+
+      match /dailyLogs/{logId} {
+        allow get: if isOwner(userId) && isValidId(logId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(logId) &&
+                         incoming().dateKey == logId &&
+                         incoming().keys().hasAll([
+                           'userId', 'dateKey', 'pagesRevisedToday', 'morningAzkarDone',
+                           'eveningAzkarDone', 'tasbihDoneToday', 'tajweedQuizCorrect',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'dateKey', 'pagesRevisedToday', 'morningAzkarDone',
+                           'eveningAzkarDone', 'tasbihDoneToday', 'tajweedQuizCorrect',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidDailyWorshipLog(incoming());
+
+        allow update: if isOwner(userId) &&
+                         isValidId(logId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().dateKey == existing().dateKey &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidDailyWorshipLog(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'pagesRevisedToday', 'morningAzkarDone', 'eveningAzkarDone',
+                           'tasbihDoneToday', 'tajweedQuizCorrect', 'updatedAt'
+                         ]);
+
+        allow delete: if isOwner(userId) && isValidId(logId);
+      }
+
+      match /customAzkar/{zikrId} {
+        allow get: if isOwner(userId) && isValidId(zikrId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(zikrId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'text', 'virtue', 'targetCount',
+                           'totalCompleted', 'favorite', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'text', 'virtue', 'targetCount',
+                           'totalCompleted', 'favorite', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidCustomZikr(incoming());
+
+        allow update: if isOwner(userId) &&
+                         isValidId(zikrId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidCustomZikr(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'text', 'virtue', 'targetCount', 'totalCompleted', 'favorite', 'updatedAt'
+                         ]);
+
+        allow delete: if isOwner(userId) && isValidId(zikrId);
+      }
+
+      match /reflections/{reflectionId} {
+        allow get: if isOwner(userId) && isValidId(reflectionId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(reflectionId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'body', 'moodTag', 'dateKey', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'body', 'moodTag', 'dateKey', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidReflectionEntry(incoming());
+
+        allow update: if isOwner(userId) &&
+                         isValidId(reflectionId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidReflectionEntry(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'title', 'body', 'moodTag', 'dateKey', 'updatedAt'
+                         ]);
+
+        allow delete: if isOwner(userId) && isValidId(reflectionId);
+      }
+
+      match /favoriteAzkar/{favId} {
+        allow get: if isOwner(userId) && isValidId(favId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(favId) &&
+                         incoming().keys().hasAll(['userId', 'zikrKey', 'categoryKey', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'zikrKey', 'categoryKey', 'createdAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         isValidFavoriteZikr(incoming());
+
+        allow update: if false;
+
+        allow delete: if isOwner(userId) && isValidId(favId);
+      }
+
+      match /gamification/{docId} {
+        allow get: if isOwner(userId) && isValidId(docId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(docId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'xp', 'currentStreakDays', 'longestQuizCombo',
+                           'quizzesCompleted', 'perfectQuizzes', 'totalCorrectAnswers',
+                           'surahOpenersSolved', 'surahClosersSolved', 'mutashabihatSolved',
+                           'testedJuzCsv', 'fullQuranQuizDone', 'unlockedBadgesCsv',
+                           'lastActiveDateKey', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'xp', 'currentStreakDays', 'longestQuizCombo',
+                           'quizzesCompleted', 'perfectQuizzes', 'totalCorrectAnswers',
+                           'surahOpenersSolved', 'surahClosersSolved', 'mutashabihatSolved',
+                           'testedJuzCsv', 'fullQuranQuizDone', 'unlockedBadgesCsv',
+                           'lastActiveDateKey', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidGamificationProfile(incoming());
+
+        allow update: if isOwner(userId) &&
+                         isValidId(docId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidGamificationProfile(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'xp', 'currentStreakDays', 'longestQuizCombo',
+                           'quizzesCompleted', 'perfectQuizzes', 'totalCorrectAnswers',
+                           'surahOpenersSolved', 'surahClosersSolved', 'mutashabihatSolved',
+                           'testedJuzCsv', 'fullQuranQuizDone', 'unlockedBadgesCsv',
+                           'lastActiveDateKey', 'updatedAt'
+                         ]);
+
+        allow delete: if isOwner(userId) && isValidId(docId);
+      }
+
+      match /quizAttempts/{attemptId} {
+        allow get: if isOwner(userId) && isValidId(attemptId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(attemptId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'scopeLabel', 'questionTypesCsv', 'score',
+                           'totalQuestions', 'xpEarned', 'bestCombo', 'dateKey', 'createdAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'scopeLabel', 'questionTypesCsv', 'score',
+                           'totalQuestions', 'xpEarned', 'bestCombo', 'dateKey', 'createdAt'
+                         ]) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         isValidQuizAttempt(incoming());
+
+        allow update: if false;
+
+        allow delete: if isOwner(userId) && isValidId(attemptId);
+      }
+    }
+  }
+}

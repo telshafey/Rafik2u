@@ -1,0 +1,6 @@
+{
+  "name": "رفيق",
+  "description": "تطبيق رفيق — رفيق حافظ القرآن الكريم لضبط المراجعة والتعهد للـ ٣٠ جزءاً، إتقان المتشابهات وأحكام التجويد، مع صحيح السنة النبوية والأدعية المأثورة.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
